@@ -1,9 +1,9 @@
 package com.rms.common.controller;
 
-import com.doctorwork.common.exception.ErrorCode;
-import com.doctorwork.framework.code.ErrorCodeEnum;
-import com.doctorwork.framework.exception.BusinessException;
+import com.rms.common.exception.BusinessException;
+import com.rms.common.exception.ErrorCode;
 import com.rms.common.result.HttpResult;
+import com.rms.common.session.ErrorCodeEnum;
 import com.rms.common.session.UserSession;
 import com.rms.common.session.UserSessionContext;
 import org.slf4j.Logger;

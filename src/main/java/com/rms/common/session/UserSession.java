@@ -1,7 +1,5 @@
 package com.rms.common.session;
 
-import me.chanjar.weixin.mp.bean.result.WxMpUser;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -11,7 +9,7 @@ public class UserSession implements Serializable {
     private String openIDName;
     private String macID;
     private String token;
-    private WxMpUser wxMpUser;
+    //private WxMpUser wxMpUser;
     private Date loginDate;
     private String macPath;
     private UserPassport userPassport;
@@ -76,13 +74,7 @@ public class UserSession implements Serializable {
         this.userPassport = userPassport;
     }
 
-    public WxMpUser getWxMpUser() {
-        return this.wxMpUser;
-    }
 
-    public void setWxMpUser(WxMpUser wxMpUser) {
-        this.wxMpUser = wxMpUser;
-    }
 
     public String getLoginType() {
         return this.loginType;

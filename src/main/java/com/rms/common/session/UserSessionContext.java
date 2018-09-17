@@ -1,7 +1,6 @@
 package com.rms.common.session;
 
-import com.doctorwork.framework.code.ErrorCodeEnum;
-import com.doctorwork.framework.exception.BusinessException;
+import com.rms.common.exception.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.RequestContextHolder;
