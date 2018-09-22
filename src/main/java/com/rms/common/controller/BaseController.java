@@ -13,6 +13,7 @@ public class BaseController {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public BaseController() {
+
     }
 
     public long getUserId() throws BusinessException {
