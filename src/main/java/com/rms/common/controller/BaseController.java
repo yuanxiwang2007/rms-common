@@ -6,13 +6,13 @@ import com.rms.common.result.HttpResult;
 import com.rms.common.session.ErrorCodeEnum;
 import com.rms.common.session.UserSession;
 import com.rms.common.session.UserSessionContext;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BaseController {
-    public static final Logger log=org.apache.log4j.Logger.getLogger(BaseController.class);
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public BaseController() {
-
     }
 
     public long getUserId() throws BusinessException {
@@ -23,9 +23,9 @@ public class BaseController {
                 return passportId;
             }
 
-            log.info("[BaseController]Invalid PassportId:"+passportId);
+            this.logger.info("[BaseController]Invalid PassportId", passportId);
         } else {
-            log.info("[BaseController]UserSession Not Exists");
+            this.logger.info("[BaseController]UserSession Not Exists");
         }
 
         throw new BusinessException(ErrorCodeEnum.UNLOGIN);
