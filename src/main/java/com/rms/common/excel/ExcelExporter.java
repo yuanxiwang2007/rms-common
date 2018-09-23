@@ -7,6 +7,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -21,9 +22,67 @@ public class ExcelExporter {
     private Workbook workbook; // 当前导入文件
     private String dateFormat = "yyyy-MM-dd";//日期格式
     private Sheet sheet;//创建标签页
+    private String fileName;
 
     public ExcelExporter() {
 
+    }
+
+    private void setRespHeader(HttpServletResponse response) throws Exception {
+        response.setContentType("application/octet-stream;charset=ISO8859-1");
+        response.setHeader("Content-Disposition", "attachment;filename=" + new String(fileName.getBytes("gb2312"), "ISO8859-1"));
+        response.addHeader("Pargam", "no-cache");
+        response.addHeader("Cache-Control", "no-cache");
+    }
+
+    public <T> void Export(HttpServletResponse response, String fileName, List<T> list) throws Exception {
+        OutputStream outputStream = response.getOutputStream();
+        this.fileName = fileName;
+        if (list == null || list.size() == 0) {
+            return;
+        }
+        modelType = list.get(0).getClass();
+        OpenWorkbook();
+        if (workbook == null) {
+            return;
+        }
+        setRespHeader(response);
+        setBodyData(list);
+        String sheetName = fileName.replace("." + excelType.name(), "");
+        workbook.setSheetName(0, sheetName);
+        try {
+            workbook.write(outputStream);
+            workbook.cloneSheet(0);
+            outputStream.flush();
+            outputStream.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public <T> void Export(OutputStream outputStream, String fileName, List<T> list) throws Exception {
+        if (list == null || list.size() == 0) {
+            return;
+        }
+        this.fileName = fileName;
+        modelType = list.get(0).getClass();
+        OpenWorkbook();
+        if (workbook == null) {
+            return;
+        }
+        setBodyData(list);
+        String sheetName = fileName.replace("." + excelType.name(), "");
+        workbook.setSheetName(0, sheetName);
+        try {
+            workbook.write(outputStream);
+            workbook.cloneSheet(0);
+            outputStream.flush();
+            outputStream.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -31,35 +90,37 @@ public class ExcelExporter {
         if (StringUtils.isEmpty(path)) {
             throw new ParamException("path");
         }
-        File file = new File(path);
-//        if (!file.exists()) {
-//            throw new ParamException("Template file is not exist!");
-//        }
+        this.fileName = path;
+        File file = new File(fileName);
         if (list == null || list.size() == 0) {
             return;
         }
         modelType = list.get(0).getClass();
-        //data=list.get(0);
-        OpenWorkbook(path);
-
+        OpenWorkbook();
         if (workbook == null) {
             return;
         }
+        setBodyData(list);
+        String sheetName = file.getName().replace("." + excelType.name(), "");
+        workbook.setSheetName(0, sheetName);
+        try {
+            FileOutputStream fileoutputStream = new FileOutputStream(file);
+            workbook.write(fileoutputStream);
+            workbook.cloneSheet(0);
+            fileoutputStream.flush();
+            fileoutputStream.close();
 
-//        if (m_workbook.getNumberOfSheets() <= 0) {
-//            //logger.Log("无效的文件，请重新下载导入模板！");
-//            return;
-//        }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private <T> void setBodyData(List<T> list) throws Exception {
         sheet = workbook.createSheet();
-
         Hashtable<Integer, Excel> mappings = ModelParser.GetColumnMappingInfo(modelType);
-
         Row defaultRow = sheet.getRow(1);
-
-        setHeader(mappings);
+        setHeaderTitle(mappings);
         int rowIndex = 1;
-
-
         for (T data : list) {
             Row row = sheet.createRow(rowIndex);
             row.setHeight((short) (25 * 20));
@@ -93,34 +154,22 @@ public class ExcelExporter {
             }
             rowIndex++;
         }
-        String sheetName = file.getName().replace("." + excelType.name(), "");
-        workbook.setSheetName(0, sheetName);
-        try {
-            FileOutputStream fileoutputStream = new FileOutputStream(file);
-            workbook.write(fileoutputStream);
-            workbook.cloneSheet(0);
-            fileoutputStream.flush();
-            fileoutputStream.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
-    private void setHeader(Hashtable<Integer, Excel> mappings) throws NoSuchFieldException {
+    private void setHeaderTitle(Hashtable<Integer, Excel> mappings) throws NoSuchFieldException {
         Row defaultRow = sheet.getRow(0);
         Row row;
         int rowIndex = 0;
         if (defaultRow == null) {
             row = sheet.createRow(rowIndex);
             row.setHeight((short) (25 * 20));
-        }else{
+        } else {
             row = defaultRow;
         }
 
         for (int column : mappings.keySet()) {
             Excel excel = mappings.get(column);
-            sheet.setColumnWidth(column, 36*excel.ColumnWidth());
+            sheet.setColumnWidth(column, 36 * excel.ColumnWidth());
             Object value = excel.ColumnTitle();
             Cell cell = row.createCell(column);
             if (defaultRow != null) {
@@ -146,16 +195,12 @@ public class ExcelExporter {
         return dateString;
     }
 
-    private void OpenWorkbook(String path) {
-        if (StringUtils.isEmpty(path)) {
+    private void OpenWorkbook() {
+        if (StringUtils.isEmpty(fileName)) {
             throw new ParamException("文件名不能为空！");
         }
-//        File file = new File(path);
-//        if (!file.exists()) {
-//            throw new ParamException("文件不存在！!");
-//        }
-        //获取文件格式类型
-        String fileType = path.substring(path.lastIndexOf("."), path.length());
+        //获取文件类型
+        String fileType = fileName.substring(fileName.lastIndexOf("."), fileName.length());
         try {
             //InputStream inputStream = new FileInputStream(file);
             switch (fileType) {
