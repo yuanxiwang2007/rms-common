@@ -2,15 +2,18 @@ package com.rms.common;
 
 
 import com.rms.common.excel.*;
-
-import java.util.ArrayList;
+import com.rms.common.util.SysUtil;
+import org.junit.Test;
 import java.util.List;
 public class TestClass {
 
+    @Test
     public static  void main (String [] args){
         try {
-            List<ExcelEntity> entityList=new ArrayList<>();
+            List<ExcelEntity> entityList;
             entityList=ExcelUtil.Import("src/main/resources/template.xls",ExcelEntity.class);
+            SysUtil.sortDesc(entityList,ExcelEntity::getCode,ExcelEntity::getName);
+            SysUtil.sortAsc(entityList,ExcelEntity::getCode,ExcelEntity::getName);
             ExcelUtil.Export("d:\\excel.xls",entityList);
         } catch (Exception e) {
             e.printStackTrace();

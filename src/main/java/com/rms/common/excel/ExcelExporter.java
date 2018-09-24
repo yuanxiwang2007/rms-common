@@ -1,11 +1,15 @@
 package com.rms.common.excel;
 
+import com.rms.common.util.RequestHolderUtil;
 import lombok.extern.log4j.Log4j;
+import org.apache.http.protocol.ResponseContent;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -28,14 +32,16 @@ public class ExcelExporter {
 
     }
 
-    private void setRespHeader(HttpServletResponse response) throws Exception {
+    private void setRespHeader() throws Exception {
+        HttpServletResponse response = RequestHolderUtil.getResponse();
         response.setContentType("application/octet-stream;charset=ISO8859-1");
         response.setHeader("Content-Disposition", "attachment;filename=" + new String(fileName.getBytes("gb2312"), "ISO8859-1"));
         response.addHeader("Pargam", "no-cache");
         response.addHeader("Cache-Control", "no-cache");
     }
 
-    public <T> void Export(HttpServletResponse response, String fileName, List<T> list) throws Exception {
+    public <T> void ExportToClient(String fileName, List<T> list) throws Exception {
+        HttpServletResponse response = RequestHolderUtil.getResponse();
         OutputStream outputStream = response.getOutputStream();
         this.fileName = fileName;
         if (list == null || list.size() == 0) {
@@ -46,7 +52,7 @@ public class ExcelExporter {
         if (workbook == null) {
             return;
         }
-        setRespHeader(response);
+        setRespHeader();
         setBodyData(list);
         String sheetName = fileName.replace("." + excelType.name(), "");
         workbook.setSheetName(0, sheetName);
