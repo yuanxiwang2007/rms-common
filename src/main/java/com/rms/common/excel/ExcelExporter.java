@@ -58,7 +58,6 @@ public class ExcelExporter {
         workbook.setSheetName(0, sheetName);
         try {
             workbook.write(outputStream);
-            workbook.cloneSheet(0);
             outputStream.flush();
             outputStream.close();
 
@@ -82,7 +81,6 @@ public class ExcelExporter {
         workbook.setSheetName(0, sheetName);
         try {
             workbook.write(outputStream);
-            workbook.cloneSheet(0);
             outputStream.flush();
             outputStream.close();
 
@@ -112,7 +110,6 @@ public class ExcelExporter {
         try {
             FileOutputStream fileoutputStream = new FileOutputStream(file);
             workbook.write(fileoutputStream);
-            workbook.cloneSheet(0);
             fileoutputStream.flush();
             fileoutputStream.close();
 

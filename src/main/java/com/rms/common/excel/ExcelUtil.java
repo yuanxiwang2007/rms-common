@@ -44,14 +44,14 @@ public class ExcelUtil {
     }
     /**
      * 导入excel到web下载文件
-     * @param path 导入数据文件路径包括文件名
+     * @param fileName 文件名
      * @param list 导入list 数组
      * @param <T> 泛型标识
      * @throws Exception
      */
-    public static <T> void ExportToClient(String path, List<T> list) throws Exception {
+    public static <T> void ExportToClient(String fileName, List<T> list) throws Exception {
         ExcelExporter excelExporter=new ExcelExporter();
-        excelExporter.ExportToClient(path,list);
+        excelExporter.ExportToClient(fileName,list);
     }
 
 }
