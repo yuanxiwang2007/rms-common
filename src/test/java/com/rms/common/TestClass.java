@@ -11,10 +11,10 @@ public class TestClass {
     public static  void main (String [] args){
         try {
             List<ExcelEntity> entityList;
-            entityList=ExcelUtil.Import("src/main/resources/template.xls",ExcelEntity.class);
+            entityList=ExcelUtil.ImportToList("src/main/resources/template.xls",ExcelEntity.class);
             SysUtil.sortDesc(entityList,ExcelEntity::getCode,ExcelEntity::getName);
             SysUtil.sortAsc(entityList,ExcelEntity::getCode,ExcelEntity::getName);
-            ExcelUtil.Export("d:\\excel.xls",entityList);
+            ExcelUtil.ExportToLocal("d:\\excel.xls",entityList);
         } catch (Exception e) {
             e.printStackTrace();
         }
