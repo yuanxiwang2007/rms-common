@@ -13,4 +13,6 @@ public class ExcelEntity {
 
     @Excel(ColumnNum = 2,ColumnTitle = "电话",ColumnWidth = 100,PropertyName = "phone")
     private String phone;
+
+
 }

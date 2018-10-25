@@ -1,13 +1,12 @@
 package com.rms.common;
 
-
 import com.rms.common.excel.*;
 import com.rms.common.util.SysUtil;
-import org.junit.Test;
+import lombok.extern.log4j.Log4j;
 import java.util.List;
+@Log4j
 public class TestClass {
 
-    @Test
     public static  void main (String [] args){
         try {
             List<ExcelEntity> entityList;
