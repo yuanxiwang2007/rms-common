@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.util.StringUtils;
 
@@ -32,6 +33,7 @@ public class ExcelService {
 
     /**
      * 下载文件的时候配置表头信息
+     *
      * @throws Exception
      */
     private void WritRespHeader() throws Exception {
@@ -44,8 +46,9 @@ public class ExcelService {
 
     /**
      * 导出文件到客户端
+     *
      * @param fileName
-     * @param list 数据源
+     * @param list     数据源
      * @param <T>
      * @throws Exception
      */
@@ -77,6 +80,7 @@ public class ExcelService {
 
     /**
      * 导出数据到输入流
+     *
      * @param outputStream
      * @param fileName
      * @param list
@@ -108,6 +112,7 @@ public class ExcelService {
 
     /**
      * 导出文件到本地路径
+     *
      * @param path 本地路径
      * @param list 数据源
      * @param <T>
@@ -117,8 +122,8 @@ public class ExcelService {
         if (StringUtils.isEmpty(path)) {
             throw new ParamException("path");
         }
-        if(path.contains("classpath:")){
-            path=path.replace("classpath:","src/main/resources/");
+        if (path.contains("classpath:")) {
+            path = path.replace("classpath:", "src/main/resources/");
         }
 
         this.fileName = path;
@@ -147,6 +152,7 @@ public class ExcelService {
 
     /**
      * 写入数据
+     *
      * @param list
      * @param <T>
      * @throws Exception
@@ -190,10 +196,74 @@ public class ExcelService {
             }
             rowIndex++;
         }
+        for (int column : mappings.keySet()) {
+            Excel excel = mappings.get(column);
+            String property = excel.PropertyName();
+            boolean autoMerge = excel.AutoMergeRow();
+            int groupByColumnNum = excel.GroupByColumnNum();
+            if (autoMerge) {
+                Object preValue = null;
+                Integer startIndex = 0;
+                Integer endIndex = 1;
+                for (T data : list) {
+                    Field field = modelType.getDeclaredField(property);
+                    field.setAccessible(true);
+                    Object value = field.get(data);
+                    //处理分组列
+                    if (groupByColumnNum != -1) {
+                        value = CreateMergeColumnVal(mappings, groupByColumnNum, data, value);
+                    }
+
+                    if (startIndex == 0) {
+                        startIndex = 1;
+                        preValue = value;
+                        endIndex++;
+                    } else if ((preValue != null && preValue.equals(value))
+                            || (value != null && value.equals(preValue))
+                            || (value == null && preValue == null)
+                            ) {
+                        preValue = value;
+                        endIndex++;
+                    } else if (preValue != value && startIndex != endIndex) {
+                        // 合并单元格
+                        CellRangeAddress cellRangeAddress = new CellRangeAddress(startIndex, endIndex - 1, column, column);
+                        sheet.addMergedRegion(cellRangeAddress);
+                        preValue = value;
+                        startIndex = endIndex;
+                        endIndex++;
+
+                    } else {
+                        endIndex++;
+                    }
+                }
+                if (endIndex - startIndex > 1) {
+                    CellRangeAddress cellRangeAddress = new CellRangeAddress(startIndex, endIndex - 1, column, column);
+                    sheet.addMergedRegion(cellRangeAddress);
+                }
+            }
+        }
+
+    }
+
+    private Object CreateMergeColumnVal(Hashtable<Integer, Excel> mappings, int groupByColumnNum, Object data, Object value) throws NoSuchFieldException, IllegalAccessException {
+        Excel excelGroup = mappings.get(groupByColumnNum);
+        String propertyGroup = excelGroup.PropertyName();
+        Field fieldGroup = modelType.getDeclaredField(propertyGroup);
+        fieldGroup.setAccessible(true);
+        Object valueGroup = fieldGroup.get(data);
+        if (valueGroup != null && value != null) {
+            value = value + "" + valueGroup;
+        }
+        if (excelGroup.GroupByColumnNum() != -1) {
+            int groupByColumnNumNext = excelGroup.GroupByColumnNum();
+            value = CreateMergeColumnVal(mappings, groupByColumnNumNext, data, value);
+        }
+        return value;
     }
 
     /**
      * 写入Excel表头
+     *
      * @param mappings
      * @throws NoSuchFieldException
      */
@@ -232,6 +302,7 @@ public class ExcelService {
 
     /**
      * 日期格式
+     *
      * @param date
      * @return
      */
@@ -306,8 +377,8 @@ public class ExcelService {
         if (StringUtils.isEmpty(path)) {
             throw new ParamException("path不能为空");
         }
-        if(path.contains("classpath:")){
-            path=path.replace("classpath:","src/main/resources/");
+        if (path.contains("classpath:")) {
+            path = path.replace("classpath:", "src/main/resources/");
         }
         ReadWorkbook(path);
         if (workbook == null) {
@@ -324,6 +395,7 @@ public class ExcelService {
 
     /**
      * 读取Excel 数据到List
+     *
      * @param <T>
      * @return
      * @throws Exception
@@ -378,6 +450,7 @@ public class ExcelService {
 
     /**
      * 获取工作表
+     *
      * @param path
      */
     private void ReadWorkbook(String path) {

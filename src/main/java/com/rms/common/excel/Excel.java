@@ -15,4 +15,8 @@ public @interface Excel {
     String PropertyName() default   "";
 
     String ColumnTitle() default "";
+
+    boolean AutoMergeRow() default false;
+
+    int GroupByColumnNum() default -1;
 }
