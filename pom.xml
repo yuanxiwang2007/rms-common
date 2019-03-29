@@ -6,7 +6,7 @@
 
     <groupId>com.rms.framework</groupId>
     <artifactId>common</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.1.RELEASE</version>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -112,11 +112,7 @@
             <artifactId>lombok</artifactId>
             <version>1.16.18</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-log4j</artifactId>
-            <version>1.3.8.RELEASE</version>
-        </dependency>
+
 
         <!--EXCEL处理包-->
         <dependency>
