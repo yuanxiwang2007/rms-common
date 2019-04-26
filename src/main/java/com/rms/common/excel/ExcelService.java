@@ -1,12 +1,13 @@
 package com.rms.common.excel;
 
 import com.rms.common.util.RequestHolderUtil;
-import lombok.extern.log4j.Log4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletResponse;
@@ -18,8 +19,10 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
-@Log4j
 public class ExcelService {
+
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private Class<?> modelType;
     private ExcelType excelType;  // 文件类型
     private Workbook workbook; // 当前导入文件
@@ -335,7 +338,7 @@ public class ExcelService {
                     break;
             }
         } catch (Exception ex) {
-            log.info("读取文件格式类型报错：" + ex.getMessage());
+            logger.info("读取文件格式类型报错：" + ex.getMessage());
         }
     }
 
@@ -385,7 +388,7 @@ public class ExcelService {
             return null;
         }
         if (workbook.getNumberOfSheets() <= 0) {
-            log.info("无效的文件，请重新下载导入模板！");
+            logger.info("无效的文件，请重新下载导入模板！");
             return null;
         }
         sheet = workbook.getSheetAt(0);
@@ -439,7 +442,7 @@ public class ExcelService {
                     }
                 } catch (Exception ex) {
                     String errMsg = "读取失败：第 " + curRowIndex + " 行;第 " + _columnIndex + " 列;" + ex.getMessage();
-                    log.error(errMsg);
+                    logger.error(errMsg);
                     throw new Exception(errMsg);
                 }
             }
@@ -476,7 +479,7 @@ public class ExcelService {
                     break;
             }
         } catch (Exception ex) {
-            log.info("workbook的创建报错：" + ex.getMessage());
+            logger.info("workbook的创建报错：" + ex.getMessage());
         }
     }
 }
